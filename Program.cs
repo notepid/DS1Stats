@@ -20,7 +20,7 @@ namespace DS1Counter
             Console.OutputEncoding = Encoding.Unicode;
 
             var saveGameDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"NBGI\DarkSouls\");
-            var saveGameFileName = "arntor.sl2";
+            var saveGameFileName = "DRAKS0005.sl2";
             var saveGameFile = Path.Combine(saveGameDirectory, saveGameFileName);
             _outputDirectory = Directory.GetCurrentDirectory();
 

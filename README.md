@@ -1,6 +1,8 @@
 # DS1Stats
 Program that monitors a Dark Souls 1 save game and extracts info into text files and json
 
+Offsets etc was found here: http://dsfp.readthedocs.io/datasheet.html
+
 File | What
 --- | --- 
 `ds1counter_{saveslot}_deaths.txt`					|	Total number of deaths for this character

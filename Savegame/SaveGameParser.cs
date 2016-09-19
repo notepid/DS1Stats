@@ -14,7 +14,6 @@ namespace DS1Counter.Savegame
             {
                 for (var i = 0; i < 10; i++)
                 {
-
                     CharacterInfo characterInfo;
                     if (!characterInfoList.TryGetValue(i, out characterInfo))
                         characterInfo = new CharacterInfo();
