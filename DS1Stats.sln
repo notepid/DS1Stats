@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DS1Counter", "DS1Counter.csproj", "{37F32A3C-5595-4799-9507-61B2D6779A1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DS1Stats", "DS1Stats.csproj", "{37F32A3C-5595-4799-9507-61B2D6779A1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

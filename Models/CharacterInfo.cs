@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DS1Counter.Models
+namespace DS1Stats.Models
 {
     public class CharacterInfo
     {

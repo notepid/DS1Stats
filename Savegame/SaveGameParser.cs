@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using DS1Counter.Models;
+using DS1Stats.Models;
 
-namespace DS1Counter.Savegame
+namespace DS1Stats.Savegame
 {
     public class SaveGameParser
     {

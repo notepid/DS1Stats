@@ -1,5 +1,5 @@
 ﻿// ReSharper disable InconsistentNaming
-namespace DS1Counter.Savegame
+namespace DS1Stats.Savegame
 {
     public class SaveGameOffsets
     {

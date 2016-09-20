@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DS1Counter.Models
+namespace DS1Stats.Models
 {
     public static class Items
     {

@@ -4,11 +4,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Timers;
-using DS1Counter.Models;
-using DS1Counter.Savegame;
+using DS1Stats.Models;
+using DS1Stats.Savegame;
 using Newtonsoft.Json;
 
-namespace DS1Counter
+namespace DS1Stats
 {
     class Program
     {
