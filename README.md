@@ -19,6 +19,8 @@ File | What
 
 If you like and use this program for your stream, or whatever, it would be nice if you included some creds to Notepid :)
 
+Download latest version here: https://github.com/notepid/DS1Stats/releases/latest
+
 # Known issues
 * There MIGHT be a problem when running a save with multiple characters in it. Still being tested. Best results if used with the first saveslot.
 * Only works with the Steam version of the game (Prepeare to Die edition). Can be tweaked for old versions of the game, but offsets needs to be adjusted in SaveGameOffsets.cs for that to work.
