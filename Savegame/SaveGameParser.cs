@@ -19,10 +19,9 @@ namespace DS1Counter.Savegame
                         characterInfo = new CharacterInfo();
 
                     var slotStart = SaveGameOffsets.SLOT_BEGIN + SaveGameOffsets.SLOT_LENGTH * i;
-                    reader.BaseStream.Seek(slotStart, SeekOrigin.Begin);
 
                     //Character name
-                    reader.BaseStream.Seek(SaveGameOffsets.CHARACTER_NAME, SeekOrigin.Current);
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_NAME, SeekOrigin.Begin);
                     var buffer = reader.ReadBytes(32);
                     var characterName = Encoding.Unicode.GetString(FixNullterminatedString(buffer)).Trim();
                     if (string.IsNullOrEmpty(characterName))
@@ -30,9 +29,8 @@ namespace DS1Counter.Savegame
                     characterInfo.Name = characterName;
 
                     //Number of deaths
-                    reader.BaseStream.Seek(slotStart, SeekOrigin.Begin);
-                    reader.BaseStream.Seek(SaveGameOffsets.CHARACTER_DEATHS, SeekOrigin.Current);
                     var previousDeaths = characterInfo.Deaths;
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_DEATHS, SeekOrigin.Begin);
                     characterInfo.Deaths = reader.ReadUInt32();
 
                     if (characterInfo.SessionStartDeaths == 0)
@@ -43,9 +41,48 @@ namespace DS1Counter.Savegame
                     //Character has died
                     if (previousDeaths != characterInfo.Deaths)
                     {
-                        characterInfo.LastDeath = DateTime.UtcNow;
                         Console.WriteLine($"Death detected for {characterInfo.Name}");
+
+                        var lifeSpan = (DateTime.UtcNow - characterInfo.LastDeath);
+                        characterInfo.LifeDurations.Add(lifeSpan);
+                        characterInfo.LastDeath = DateTime.UtcNow;
                     }
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Vitality, SeekOrigin.Begin);
+                    characterInfo.Vitality = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Attunement, SeekOrigin.Begin);
+                    characterInfo.Attunement = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Endurance, SeekOrigin.Begin);
+                    characterInfo.Endurance = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Strength, SeekOrigin.Begin);
+                    characterInfo.Strength = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Dexterity, SeekOrigin.Begin);
+                    characterInfo.Dexterity = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Intelligence, SeekOrigin.Begin);
+                    characterInfo.Intelligence = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Faith, SeekOrigin.Begin);
+                    characterInfo.Faith = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Humanity, SeekOrigin.Begin);
+                    characterInfo.Humanity = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Resistance, SeekOrigin.Begin);
+                    characterInfo.Resistance = reader.ReadInt64();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Level, SeekOrigin.Begin);
+                    characterInfo.Level = reader.ReadInt32();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Souls, SeekOrigin.Begin);
+                    characterInfo.Souls = reader.ReadInt32();
+
+                    reader.BaseStream.Seek(slotStart + SaveGameOffsets.CHARACTER_Earned_Souls, SeekOrigin.Begin);
+                    characterInfo.EarnedSouls = reader.ReadInt64();
 
                     characterInfoList[i] = characterInfo;
                 }

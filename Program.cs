@@ -77,15 +77,62 @@ namespace DS1Counter
         private static void DoParse(string saveGameFile, string outputDirectory, Dictionary<int, CharacterInfo> characterInfoList, int maxNumberOfTries = 20)
         {
             FileStream fileStream;
-            
+
+            if (!TryOpenFile(saveGameFile, maxNumberOfTries, out fileStream))
+            {
+                Console.WriteLine("Could not get read-mode on savegame file. Aborting attempt...");
+                return;
+            }
+
+            //Buffer the save game so we don't block it
+            var memoryStream = new MemoryStream();
+            fileStream.CopyTo(memoryStream);
+            fileStream.Close();
+
+            _characterInfoList = SaveGameParser.ParseSaveGame(memoryStream, characterInfoList);
+
+            WriteOutputFiles(outputDirectory, characterInfoList);
+        }
+
+        private static void WriteOutputFiles(string outputDirectory, Dictionary<int, CharacterInfo> characterInfoList)
+        {
+            foreach (var characterInfo in _characterInfoList)
+            {
+                Console.WriteLine($"Saving data to files for {characterInfo.Value.Name} in slot #{characterInfo.Key}");
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_deaths.txt"), characterInfo.Value.Deaths.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_name.txt"), characterInfo.Value.Name);
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_time_last_death.txt"), characterInfo.Value.LastDeath.ToLocalTime().ToLongTimeString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_session_deaths.txt"), characterInfo.Value.SessionDeaths.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_session_deaths_total_deaths.txt"), $"{characterInfo.Value.SessionDeaths} / {characterInfo.Value.Deaths}");
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_average_life_length.txt"), characterInfo.Value.CalculateAverageLifeLength().ToString(@"hh\:mm\:ss"));
+
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Vitality.txt"), characterInfo.Value.Vitality.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Attunement.txt"), characterInfo.Value.Attunement.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Endurance.txt"), characterInfo.Value.Endurance.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Strength.txt"), characterInfo.Value.Strength.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Dexterity.txt"), characterInfo.Value.Dexterity.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Intelligence.txt"), characterInfo.Value.Intelligence.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Faith.txt"), characterInfo.Value.Faith.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Humanity.txt"), characterInfo.Value.Humanity.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Resistance.txt"), characterInfo.Value.Resistance.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Level.txt"), characterInfo.Value.Level.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_Souls.txt"), characterInfo.Value.Souls.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_stats_EarnedSouls.txt"), characterInfo.Value.EarnedSouls.ToString());
+
+                File.WriteAllText(Path.Combine(outputDirectory, "ds1counter.json"), JsonConvert.SerializeObject(characterInfoList, Formatting.Indented));
+            }
+        }
+
+        private static bool TryOpenFile(string saveGameFile, int maxNumberOfTries, out FileStream fileStream)
+        {
             //Haxy way to wait for the file to be unlocked after an update
             var attemptNumber = 0;
             while (true)
             {
                 if (++attemptNumber > maxNumberOfTries)
                 {
-                    Console.WriteLine($"Could not get read-mode on savegame file. Aborting attempt...");
-                    return;
+                    fileStream = null;
+                    return false;
                 }
 
                 try
@@ -98,25 +145,7 @@ namespace DS1Counter
                     Thread.Sleep(100);
                 }
             }
-
-            //Buffer the save game so we don't block it
-            var memoryStream = new MemoryStream();
-            fileStream.CopyTo(memoryStream);
-            fileStream.Close();
-
-            _characterInfoList = SaveGameParser.ParseSaveGame(memoryStream, characterInfoList);
-
-            foreach (var characterInfo in _characterInfoList)
-            {
-                Console.WriteLine($"Saving data for {characterInfo.Value.Name} in slot #{characterInfo.Key}");
-                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_deaths.txt"), characterInfo.Value.Deaths.ToString());
-                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_name.txt"), characterInfo.Value.Name);
-                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_time_last_death.txt"), characterInfo.Value.LastDeath.ToLocalTime().ToLongTimeString());
-                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_session_deaths.txt"), characterInfo.Value.SessionDeaths.ToString());
-                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_session_deaths_total_deaths.txt"), $"{characterInfo.Value.SessionDeaths} / {characterInfo.Value.Deaths}");
-
-                File.WriteAllText(Path.Combine(outputDirectory, "ds1counter.json"), JsonConvert.SerializeObject(characterInfoList, Formatting.Indented));
-            }
+            return true;
         }
     }
 }
