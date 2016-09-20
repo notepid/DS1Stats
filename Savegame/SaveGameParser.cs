@@ -18,35 +18,36 @@ namespace DS1Counter.Savegame
                     if (!characterInfoList.TryGetValue(i, out characterInfo))
                         characterInfo = new CharacterInfo();
 
-                    var newCharacterInfo = characterInfo;
-
                     var slotStart = SaveGameOffsets.SLOT_BEGIN + SaveGameOffsets.SLOT_LENGTH * i;
-                    saveGameStream.Seek(slotStart, SeekOrigin.Begin);
+                    reader.BaseStream.Seek(slotStart, SeekOrigin.Begin);
 
                     //Character name
-                    saveGameStream.Seek(SaveGameOffsets.CHARACTER_NAME, SeekOrigin.Current);
+                    reader.BaseStream.Seek(SaveGameOffsets.CHARACTER_NAME, SeekOrigin.Current);
                     var buffer = reader.ReadBytes(32);
-                    var characterName = Encoding.Unicode.GetString(FixNullterminatedString(buffer));
+                    var characterName = Encoding.Unicode.GetString(FixNullterminatedString(buffer)).Trim();
                     if (string.IsNullOrEmpty(characterName))
                         continue;
-                    newCharacterInfo.Name = characterName;
+                    characterInfo.Name = characterName;
 
                     //Number of deaths
-                    saveGameStream.Seek(slotStart, SeekOrigin.Begin);
-                    saveGameStream.Seek(SaveGameOffsets.CHARACTER_DEATHS, SeekOrigin.Current);
-                    newCharacterInfo.Deaths = reader.ReadUInt32();
+                    reader.BaseStream.Seek(slotStart, SeekOrigin.Begin);
+                    reader.BaseStream.Seek(SaveGameOffsets.CHARACTER_DEATHS, SeekOrigin.Current);
+                    var previousDeaths = characterInfo.Deaths;
+                    characterInfo.Deaths = reader.ReadUInt32();
 
-                    if (newCharacterInfo.SessionStartDeaths == 0)
-                        newCharacterInfo.SessionStartDeaths = newCharacterInfo.Deaths;
+                    if (characterInfo.SessionStartDeaths == 0)
+                        characterInfo.SessionStartDeaths = characterInfo.Deaths;
 
+                    characterInfo.SessionDeaths = characterInfo.Deaths - characterInfo.SessionStartDeaths;
+                    
                     //Character has died
-                    if (characterInfo.Deaths != newCharacterInfo.Deaths)
+                    if (previousDeaths != characterInfo.Deaths)
                     {
-                        newCharacterInfo.LastDeath = DateTime.UtcNow;
-                        newCharacterInfo.SessionDeaths = newCharacterInfo.SessionStartDeaths - newCharacterInfo.Deaths;
+                        characterInfo.LastDeath = DateTime.UtcNow;
+                        Console.WriteLine($"Death detected for {characterInfo.Name}");
                     }
 
-                    characterInfoList[i] = newCharacterInfo;
+                    characterInfoList[i] = characterInfo;
                 }
             }
 

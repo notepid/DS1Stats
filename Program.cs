@@ -26,6 +26,13 @@ namespace DS1Counter
 
             Console.WriteLine($"Using {saveGameFile}");
 
+            if (!File.Exists(saveGameFile))
+            {
+                Console.WriteLine("Could not find savegame file...");
+                Console.ReadKey();
+                return;
+            }
+
             var fwatcher = new FileSystemWatcher
             {
                 Path = saveGameDirectory,
@@ -104,8 +111,9 @@ namespace DS1Counter
                 Console.WriteLine($"Saving data for {characterInfo.Value.Name} in slot #{characterInfo.Key}");
                 File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_deaths.txt"), characterInfo.Value.Deaths.ToString());
                 File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_name.txt"), characterInfo.Value.Name);
-                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_time_since_last_death.txt"), characterInfo.Value.LastDeath.ToLocalTime().ToLongTimeString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_time_last_death.txt"), characterInfo.Value.LastDeath.ToLocalTime().ToLongTimeString());
                 File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_session_deaths.txt"), characterInfo.Value.SessionDeaths.ToString());
+                File.WriteAllText(Path.Combine(outputDirectory, $"ds1counter_{characterInfo.Key}_session_deaths_total_deaths.txt"), $"{characterInfo.Value.SessionDeaths} / {characterInfo.Value.Deaths}");
 
                 File.WriteAllText(Path.Combine(outputDirectory, "ds1counter.json"), JsonConvert.SerializeObject(characterInfoList, Formatting.Indented));
             }
